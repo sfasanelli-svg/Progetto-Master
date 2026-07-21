@@ -1,0 +1,14 @@
+# chiave API TomTom: mai in chiaro nel repo, si usa il secret GitHub Actions
+SCRIPT/tomtom_key.txt
+
+# file di grandi dimensioni non necessari alla pipeline CI (troppo pesanti per git,
+# alcuni superano il limite di 100MB di GitHub)
+*.parquet
+MERGE_AUTO_COLONNINE_GEO/
+domanda_ricarica_2025_per_sezione_IDI3_beta050.csv
+pun_colonnine_pulito.csv
+output/
+__pycache__/
+
+# configurazione locale dello strumento Claude Code, non pertinente al progetto
+.claude/

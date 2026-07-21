@@ -1,0 +1,39 @@
+--- Carico sezioni_censimento_2011_con_geometria.parquet (tabella di sinistra) ---
+Sezioni: 402,678 righe, 50 colonne
+
+--- Carico offerta_colonnine_per_sezione.parquet ---
+Offerta: 402,678 righe
+SEZ2011 in offerta non presenti in sezioni: 0
+
+--- Carico domanda_ricarica_2025_per_sezione_IDI3_beta050.csv ---
+Domanda: 366,863 righe
+SEZ2011 in domanda non presenti in sezioni: 0
+
+--- Left join sezioni <- offerta_colonnine (su SEZ2011) ---
+Righe dopo il join con offerta: 402,678
+Sezioni senza corrispondenza in offerta (NaN): 1,084
+
+--- Left join risultato <- domanda_ricarica (su SEZ2011) ---
+Righe dopo il join con domanda: 402,678
+Sezioni senza corrispondenza in domanda (NaN): 61,324
+
+--- Confronto colonne sovrapposte (sezioni vs domanda_IDI) ---
+  CODREG: 366,863 righe confrontabili, 0 discordanti
+  REGIONE: 366,863 righe confrontabili, 0 discordanti
+  CODPRO: 366,863 righe confrontabili, 0 discordanti
+  PROVINCIA: 366,863 righe confrontabili, 0 discordanti
+  CODCOM: 366,863 righe confrontabili, 0 discordanti
+  COMUNE: 366,837 righe confrontabili, 0 discordanti
+  PROCOM: 366,863 righe confrontabili, 0 discordanti
+  NSEZ: 366,863 righe confrontabili, 0 discordanti
+  P1: 366,863 righe confrontabili, 0 discordanti
+  popolazione_eta_guida_stimata: 366,863 righe confrontabili, 0 discordanti
+
+Scarto le colonne duplicate confermate identiche: ['CODREG_IDI', 'REGIONE_IDI', 'CODPRO_IDI', 'PROVINCIA_IDI', 'CODCOM_IDI', 'COMUNE_IDI', 'PROCOM_IDI', 'NSEZ_IDI', 'P1_IDI', 'popolazione_eta_guida_stimata_IDI']
+
+--- Ricostruzione geometria e salvataggio GeoParquet ---
+Righe finali: 402,678 | Colonne finali: 66
+Colonne: ['SEZ2011', 'geometry', 'CODREG', 'REGIONE', 'CODPRO', 'PROVINCIA', 'CODCOM', 'COMUNE', 'PROCOM', 'NSEZ', 'ACE', 'CODLOC', 'CODASC', 'P1', 'P46', 'P49', 'P50', 'P60', 'P62', 'A44', 'PF2', 'A46', 'PF1', 'E8', 'E9', 'E10', 'E11', 'E12', 'E13', 'E14', 'E15', 'E16', 'E17', 'E18', 'E19', 'E20', 'E21', 'E22', 'E23', 'E24', 'E25', 'E26', 'E27', 'P139', 'P140', 'P2', 'P3', 'popolazione_eta_guida_stimata', 'geometria_riparata', 'sezione_convenzionale_case_sparse', 'offerta_colonnine_500m', 'distanza_colonnina_piu_vicina_m', 'flag_abitata', 'flag_speciale', 'flag_IDI_calcolabile', 'flag_eleggibile_EV', 'IDI3_winsor', 'percentile_deprivazione', 'percentile_benessere', 'fattore_affidabilita_IDI', 'moltiplicatore_IDI_EV', 'peso_EV', 'cap_EV_sezione', 'PROVINCIA_EV_2025', 'EV_PROVINCIALE', 'veicoli_da_ricaricare_stimati']
+
+Salvato: C:\Users\fasanelli michele\OneDrive\Desktop\Contesto lavoro di gruppo ETL\MERGE_AUTO_COLONNINE_GEO\sezioni_offerta_domanda_merged.parquet (548.2 MB)
+EXIT CODE: 0

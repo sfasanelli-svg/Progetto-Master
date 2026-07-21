@@ -1,0 +1,51 @@
+name: Monitoraggio traffico Milano
+
+# Cron in UTC (GitHub Actions non supporta fusi orari). "0 5-20 * * *" =
+# ogni ora in punto dalle 05:00 alle 20:00 UTC = 7:00-22:00 ora italiana
+# in orario legale (CEST, UTC+2, valido in estate). In orario solare
+# (CET, UTC+1, ottobre-marzo) la finestra slitta a 6:00-21:00 locali:
+# GitHub Actions non regola da solo l'ora legale, quindi se serve
+# allineare esattamente alla finestra 7-22 anche in inverno va aggiornato
+# manualmente l'intervallo "5-20" qui sotto (es. in "6-21").
+on:
+  schedule:
+    - cron: "0 5-20 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: monitoraggio-traffico-milano
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  monitoraggio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installa dipendenze
+        run: pip install pandas requests
+
+      - name: Esegui monitoraggio traffico (150 candidati)
+        env:
+          TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
+        run: python SCRIPT/06_monitoraggio_traffico_candidati.py
+
+      - name: Commit e push del CSV aggiornato
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add SCRIPT/traffico_serie_storica_milano.csv
+          if git diff --staged --quiet; then
+            echo "Nessuna nuova riga da salvare"
+          else
+            git commit -m "Aggiorna serie storica traffico $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git pull --rebase
+            git push
+          fi

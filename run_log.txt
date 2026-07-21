@@ -1,0 +1,42 @@
+--- Carico colonnine e costruisco indice spaziale ---
+Righe colonnine (evse_id): 72,648
+Indice spaziale costruito su 72,648 punti.
+--- Carico sezioni (solo colonne necessarie) ---
+Sezioni totali: 402,678
+Sezioni escluse (case sparse, poligono fittizio): 1,084
+Sezioni da elaborare: 401,594
+--- Calcolo offerta a blocchi ---
+   20,000/401,594 sezioni elaborate (  41.2s)
+   40,000/401,594 sezioni elaborate (  67.0s)
+   60,000/401,594 sezioni elaborate (  79.1s)
+   80,000/401,594 sezioni elaborate ( 109.1s)
+  100,000/401,594 sezioni elaborate ( 168.5s)
+  120,000/401,594 sezioni elaborate ( 215.3s)
+  140,000/401,594 sezioni elaborate ( 256.3s)
+  160,000/401,594 sezioni elaborate ( 297.5s)
+  180,000/401,594 sezioni elaborate ( 323.4s)
+  200,000/401,594 sezioni elaborate ( 355.6s)
+  220,000/401,594 sezioni elaborate ( 374.7s)
+  240,000/401,594 sezioni elaborate ( 395.4s)
+  260,000/401,594 sezioni elaborate ( 407.4s)
+  280,000/401,594 sezioni elaborate ( 431.2s)
+  300,000/401,594 sezioni elaborate ( 446.8s)
+  320,000/401,594 sezioni elaborate ( 463.6s)
+  340,000/401,594 sezioni elaborate ( 475.9s)
+  360,000/401,594 sezioni elaborate ( 494.7s)
+  380,000/401,594 sezioni elaborate ( 505.1s)
+  400,000/401,594 sezioni elaborate ( 523.8s)
+  401,594/401,594 sezioni elaborate ( 526.1s)
+
+--- Controlli di coerenza ---
+Sezioni totali in output: 402,678
+Sezioni con offerta NaN (escluse): 1,084
+Sezioni con offerta_500m > 0: 200,004
+Sezioni con offerta_500m == 0: 201,590
+Sezioni con offerta==0 ma distanza NaN (non dovrebbe accadere): 0
+Somma offerta_500m su tutte le sezioni (attesa > n. colonnine reali, per design): 1,654,610
+
+Salvato: C:\Users\fasanelli michele\OneDrive\Desktop\Contesto lavoro di gruppo ETL\output\offerta_colonnine_per_sezione.parquet
+Salvato: C:\Users\fasanelli michele\OneDrive\Desktop\Contesto lavoro di gruppo ETL\output\offerta_colonnine_per_sezione.csv
+Tempo totale: 527.3s
+EXIT CODE: 0
