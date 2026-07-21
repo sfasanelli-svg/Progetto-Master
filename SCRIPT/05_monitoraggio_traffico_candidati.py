@@ -1,8 +1,8 @@
 """
-Step 6 della pipeline di siting per nuove colonnine.
+Step 5 della pipeline di siting per nuove colonnine.
 
 Interroga TomTom Flow Segment Data sui 150 candidati stradali (3 per
-sezione, output dello step 5) e APPENDE il risultato, con un timestamp,
+sezione, output dello step 4) e APPENDE il risultato, con un timestamp,
 a un CSV che cresce nel tempo. Pensato per essere eseguito ripetutamente
 (es. ogni ora dalle 7 alle 22, vedi il workflow GitHub Actions) cosi' da
 poter poi individuare, per ciascuna sezione, il candidato+ora con la

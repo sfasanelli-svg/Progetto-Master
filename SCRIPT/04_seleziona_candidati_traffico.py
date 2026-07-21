@@ -1,5 +1,5 @@
 """
-Step 5 della pipeline di siting per nuove colonnine.
+Step 4 della pipeline di siting per nuove colonnine.
 
 Per ciascuna delle 50 sezioni critiche di Milano, seleziona un numero
 ridotto di punti stradali candidati (default 3) da monitorare nel tempo

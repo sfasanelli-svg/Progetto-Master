@@ -35,7 +35,7 @@ jobs:
       - name: Esegui monitoraggio traffico (150 candidati)
         env:
           TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
-        run: python SCRIPT/06_monitoraggio_traffico_candidati.py
+        run: python SCRIPT/05_monitoraggio_traffico_candidati.py
 
       - name: Commit e push del CSV aggiornato
         run: |
