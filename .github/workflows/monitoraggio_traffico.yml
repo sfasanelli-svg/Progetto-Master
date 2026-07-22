@@ -8,17 +8,20 @@ name: Monitoraggio traffico Milano
 # allineare esattamente alla finestra 7-22 anche in inverno va aggiornato
 # manualmente l'intervallo "5-20" qui sotto (es. in "6-21").
 #
-# Perche' ogni 15 minuti e non ogni ora: gli eventi "schedule" di GitHub
-# Actions possono essere ritardati o saltati nei momenti di carico, senza
-# garanzia che ogni ora venga effettivamente eseguita. Lo script
+# Perche' ogni 5 minuti (il minimo supportato da GitHub Actions) e non
+# ogni ora: gli eventi "schedule" possono essere ritardati o saltati nei
+# momenti di carico - GitHub stesso segnala l'inizio di ogni ora come il
+# momento a piu' alto carico, quindi il piu' a rischio di salto. Piu'
+# tentativi ravvicinati nei minuti successivi riducono il rischio di
+# perdere la copertura di un'intera ora. Lo script
 # (05_monitoraggio_traffico_candidati.py) salta pero' l'esecuzione senza
 # fare alcuna chiamata TomTom se l'ora UTC corrente e' gia' coperta da una
 # lettura precedente: il costo resta quindi sempre al massimo 150
 # chiamate per ogni ora effettivamente coperta, indipendentemente da
-# quanti dei 4 tentativi orari vengono eseguiti da GitHub.
+# quanti dei 12 tentativi orari vengono eseguiti da GitHub.
 on:
   schedule:
-    - cron: "*/15 5-20 * * *"
+    - cron: "*/5 5-20 * * *"
   workflow_dispatch: {}
 
 concurrency:
