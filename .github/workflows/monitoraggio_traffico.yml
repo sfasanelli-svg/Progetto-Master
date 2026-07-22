@@ -1,15 +1,24 @@
 name: Monitoraggio traffico Milano
 
-# Cron in UTC (GitHub Actions non supporta fusi orari). "0 5-20 * * *" =
-# ogni ora in punto dalle 05:00 alle 20:00 UTC = 7:00-22:00 ora italiana
-# in orario legale (CEST, UTC+2, valido in estate). In orario solare
-# (CET, UTC+1, ottobre-marzo) la finestra slitta a 6:00-21:00 locali:
-# GitHub Actions non regola da solo l'ora legale, quindi se serve
+# Cron in UTC (GitHub Actions non supporta fusi orari). "*/15 5-20 * * *" =
+# un TENTATIVO ogni 15 minuti dalle 05:00 alle 20:00 UTC = 7:00-22:00 ora
+# italiana in orario legale (CEST, UTC+2, valido in estate). In orario
+# solare (CET, UTC+1, ottobre-marzo) la finestra slitta a 6:00-21:00
+# locali: GitHub Actions non regola da solo l'ora legale, quindi se serve
 # allineare esattamente alla finestra 7-22 anche in inverno va aggiornato
 # manualmente l'intervallo "5-20" qui sotto (es. in "6-21").
+#
+# Perche' ogni 15 minuti e non ogni ora: gli eventi "schedule" di GitHub
+# Actions possono essere ritardati o saltati nei momenti di carico, senza
+# garanzia che ogni ora venga effettivamente eseguita. Lo script
+# (05_monitoraggio_traffico_candidati.py) salta pero' l'esecuzione senza
+# fare alcuna chiamata TomTom se l'ora UTC corrente e' gia' coperta da una
+# lettura precedente: il costo resta quindi sempre al massimo 150
+# chiamate per ogni ora effettivamente coperta, indipendentemente da
+# quanti dei 4 tentativi orari vengono eseguiti da GitHub.
 on:
   schedule:
-    - cron: "0 5-20 * * *"
+    - cron: "*/15 5-20 * * *"
   workflow_dispatch: {}
 
 concurrency:
