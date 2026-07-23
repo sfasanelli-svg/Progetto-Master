@@ -9,15 +9,20 @@ ciascuna sezione, il candidato+ora con la congestione piu' alta osservata
 durante la giornata: quello e' il punto piu' trafficato dove valutare
 l'installazione della colonnina.
 
-Il workflow tenta l'esecuzione ogni 15 minuti (invece che una volta
-sola ogni ora) perche' gli eventi "schedule" di GitHub Actions possono
-essere ritardati o saltati nei momenti di carico, senza garanzia che
-ogni ora venga effettivamente coperta. Per non sprecare chiamate TomTom
-sui tentativi ridondanti, lo script salta l'esecuzione (nessuna chiamata
-API) se per l'ora UTC corrente e' gia' presente almeno una lettura nel
-CSV di output: cosi' il costo resta sempre al massimo 150 chiamate per
-ogni ora effettivamente coperta, indipendentemente da quanti tentativi
-sono stati fatti in quell'ora.
+Il trigger arriva da un cron esterno (cron-job.org, che chiama l'API
+GitHub per lanciare il workflow: piu' affidabile dello scheduler interno
+di GitHub Actions per cadenze fitte). Per evitare doppie letture se il
+trigger esterno arriva piu' volte nello stesso INTERVALLO_MINUTI, lo
+script salta l'esecuzione (nessuna chiamata API) se l'ultima riga
+presente nel CSV di output cade gia' nello stesso intervallo temporale
+di quello corrente: il costo resta cosi' al massimo 150 chiamate per
+ogni intervallo effettivamente coperto.
+
+Pensato per una raccolta intensiva di pochi giorni (non per durare un
+mese): con INTERVALLO_MINUTI=15 e quota TomTom di 20.000 chiamate/mese,
+il consumo (~8.550/giorno) esaurisce la quota residua in un paio di
+giorni, coerente con l'obiettivo di raccogliere dati sufficienti in
+tempi brevi piuttosto che sostenere la raccolta a lungo termine.
 
 API key TomTom:
   1. variabile d'ambiente TOMTOM_API_KEY (usata su GitHub Actions, via
@@ -48,6 +53,7 @@ KEY_PATH = CARTELLA_SCRIPT / "tomtom_key.txt"
 
 TOMTOM_URL = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
 PAUSA_TRA_RICHIESTE_S = 0.3  # tier free: 5 richieste/secondo, stiamo larghi
+INTERVALLO_MINUTI = 15  # granularita' del controllo "gia' coperto"
 
 
 def leggi_api_key():
@@ -57,18 +63,35 @@ def leggi_api_key():
     return KEY_PATH.read_text(encoding="utf-8").strip()
 
 
-def ora_gia_coperta(out_path, ora_utc_corrente):
-    """True se nel CSV esiste gia' almeno una riga con timestamp nella
-    stessa ora UTC (prefisso 'YYYY-MM-DDTHH') di quella corrente."""
+def bucket(dt, intervallo_minuti):
+    """Chiave dell'intervallo temporale (data, ora, minuto arrotondato
+    per difetto a multipli di intervallo_minuti) a cui appartiene dt."""
+    minuto_arrotondato = (dt.minute // intervallo_minuti) * intervallo_minuti
+    return (dt.date(), dt.hour, minuto_arrotondato)
+
+
+def intervallo_gia_coperto(out_path, adesso, intervallo_minuti):
+    """True se l'ultima riga del CSV di output cade nello stesso
+    intervallo temporale (bucket) di 'adesso'. Si guarda solo l'ultima
+    riga perche' le righe sono scritte in ordine cronologico crescente."""
     if not out_path.exists():
         return False
-    prefisso_ora = ora_utc_corrente.strftime("%Y-%m-%dT%H")
-    with open(out_path, encoding="utf-8") as f:
-        next(f, None)  # salta l'header
-        for riga in f:
-            if riga.startswith(prefisso_ora):
-                return True
-    return False
+    with open(out_path, "rb") as f:
+        f.seek(0, 2)
+        dimensione = f.tell()
+        if dimensione == 0:
+            return False
+        blocco = min(dimensione, 4096)
+        f.seek(-blocco, 2)
+        ultime_righe = f.read().decode("utf-8", errors="ignore").strip().splitlines()
+    if not ultime_righe:
+        return False
+    ultimo_timestamp = ultime_righe[-1].split(",", 1)[0]
+    try:
+        ultimo_dt = datetime.fromisoformat(ultimo_timestamp)
+    except ValueError:
+        return False
+    return bucket(ultimo_dt, intervallo_minuti) == bucket(adesso, intervallo_minuti)
 
 
 def query_flow_segment(lat, lon, api_key, tentativi=3):
@@ -89,9 +112,10 @@ def query_flow_segment(lat, lon, api_key, tentativi=3):
 def main(limite_righe=None, forza=False):
     ora_corrente = datetime.now(timezone.utc)
 
-    if not forza and ora_gia_coperta(OUT_CSV, ora_corrente):
-        print(f"Ora UTC {ora_corrente.strftime('%Y-%m-%dT%H')} gia' coperta da "
-              f"un'esecuzione precedente: nessuna chiamata TomTom, esco.")
+    if not forza and intervallo_gia_coperto(OUT_CSV, ora_corrente, INTERVALLO_MINUTI):
+        print(f"Intervallo di {INTERVALLO_MINUTI} minuti gia' coperto da "
+              f"un'esecuzione precedente ({ora_corrente.isoformat(timespec='minutes')}): "
+              f"nessuna chiamata TomTom, esco.")
         return
 
     api_key = leggi_api_key()
